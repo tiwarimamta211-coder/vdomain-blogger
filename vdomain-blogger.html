@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VDomain AI | Professional Domain Generator</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f1f5f9; color: #0f172a; padding: 20px 16px; }
+  .wrap { max-width: 800px; margin: 0 auto; }
+
+  /* HEADER */
+  .header { text-align: center; margin-bottom: 28px; }
+  .logo { font-size: 26px; font-weight: 800; color: #6366f1; margin-bottom: 6px; }
+  .sub  { font-size: 14px; color: #64748b; }
+
+  /* API BAR */
+  .api-bar { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px 18px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+  .api-bar label { font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+  .api-bar input { flex: 1; min-width: 180px; padding: 9px 12px; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 12px; font-family: inherit; outline: none; color: #334155; }
+  .api-bar input:focus { border-color: #6366f1; }
+  .api-status { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 8px; white-space: nowrap; }
+  .api-status.demo { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+  .api-status.live { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+  .api-link { font-size: 11px; color: #6366f1; text-decoration: none; white-space: nowrap; }
+  .api-link:hover { text-decoration: underline; }
+
+  /* MAIN CARD */
+  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 28px; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); }
+
+  /* CONFIG GRID */
+  .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+  .field label { display: block; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .field input, .field select, .field textarea { width: 100%; padding: 11px 14px; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 11px; font-size: 14px; font-family: inherit; color: #334155; outline: none; transition: border-color 0.2s; appearance: none; -webkit-appearance: none; }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: #6366f1; background: #fff; }
+  .field textarea { resize: none; min-height: 80px; font-size: 13px; }
+
+  /* PREMIUM TOGGLE */
+  .premium-row { background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; margin-bottom: 18px; grid-column: span 2; cursor: pointer; }
+  .premium-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: #f59e0b; cursor: pointer; flex-shrink: 0; }
+  .premium-row label { font-size: 13px; font-weight: 600; color: #92400e; cursor: pointer; }
+
+  /* EXTENSION CHIPS */
+  .ext-title { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+  .ext-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+  .ext-chip { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; border: 2px solid #e2e8f0; background: #f8fafc; color: #64748b; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .ext-chip.active { border-color: #6366f1; background: #eef2ff; color: #6366f1; }
+
+  /* GENERATE BUTTON */
+  .gen-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; border: none; border-radius: 13px; font-weight: 800; font-size: 15px; cursor: pointer; font-family: inherit; transition: opacity 0.2s, transform 0.15s; }
+  .gen-btn:hover:not(:disabled) { opacity: 0.92; transform: translateY(-2px); }
+  .gen-btn:disabled { background: #94a3b8; cursor: not-allowed; transform: none; }
+
+  /* LOADING */
+  .loading { text-align: center; padding: 30px; display: none; }
+  .loading-icon { font-size: 32px; animation: bounce 0.8s infinite alternate; }
+  @keyframes bounce { to { transform: translateY(-8px); } }
+  .loading p { color: #64748b; font-size: 13px; margin-top: 10px; }
+
+  /* RESULTS */
+  .results-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+  .domain-card { border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; transition: border-color 0.15s, box-shadow 0.15s; }
+  .domain-card:hover { border-color: #a5b4fc; box-shadow: 0 2px 12px rgba(99,102,241,0.08); }
+  .domain-card.premium-card { background: #fffbeb; border-color: #fde68a; }
+  .domain-name { font-size: 16px; font-weight: 700; color: #0f172a; }
+  .domain-price { font-size: 12px; color: #64748b; margin-top: 3px; }
+  .domain-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 8px; margin-left: 8px; }
+  .badge-available { background: #f0fdf4; color: #15803d; }
+  .badge-premium   { background: #fffbeb; color: #b45309; }
+  .badge-ai        { background: #eef2ff; color: #6366f1; }
+  .buy-btn { background: #f59e0b; color: #fff; border: none; padding: 8px 18px; border-radius: 9px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+  .buy-btn:hover { background: #d97706; }
+  .copy-btn { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; padding: 8px 14px; border-radius: 9px; font-weight: 600; font-size: 12px; cursor: pointer; font-family: inherit; margin-left: 6px; }
+  .copy-btn:hover { background: #e2e8f0; }
+
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; justify-content: center; align-items: center; }
+  .modal-box { background: #fff; border-radius: 20px; padding: 28px; width: 90%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+  .modal-box h3 { font-size: 18px; font-weight: 800; margin-bottom: 16px; }
+  .order-row { display: flex; justify-content: space-between; font-size: 13px; padding: 7px 0; border-bottom: 1px solid #f1f5f9; }
+  .order-total { display: flex; justify-content: space-between; font-size: 16px; font-weight: 800; padding: 12px 0 0; }
+  .pay-btn  { width: 100%; padding: 14px; background: #6366f1; color: #fff; border: none; border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; font-family: inherit; margin-top: 16px; }
+  .pay-btn:hover { background: #4f46e5; }
+  .cancel-btn { width: 100%; padding: 10px; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 13px; font-family: inherit; margin-top: 8px; }
+  .cancel-btn:hover { color: #ef4444; }
+
+  /* AI SECTION */
+  .ai-section { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 14px; padding: 14px 18px; margin-top: 16px; }
+  .ai-title { font-size: 11px; font-weight: 800; color: #4f46e5; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .ai-suggestion { font-size: 13px; color: #334155; line-height: 1.7; }
+
+  /* SPIN */
+  .spin { display: inline-block; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 500px) {
+    .config-grid { grid-template-columns: 1fr; }
+    .premium-row { grid-column: span 1; }
+    .domain-card { flex-direction: column; align-items: flex-start; gap: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">🌐 VDomain AI</div>
+    <div class="sub">Premium domain brainstorming with AI-powered suggestions</div>
+  </div>
+
+  <!-- API BAR -->
+  <div class="api-bar">
+    <label>Anthropic API Key</label>
+    <input type="password" id="apiKey" placeholder="sk-ant-... (for AI-powered domain suggestions)">
+    <span class="api-status demo" id="apiStatus">Demo Mode</span>
+    <a class="api-link" href="https://console.anthropic.com" target="_blank">Get Free Key →</a>
+  </div>
+
+  <!-- MAIN CARD -->
+  <div class="card">
+
+    <div class="config-grid">
+      <div class="field">
+        <label>Brand Keyword</label>
+        <input type="text" id="keyword" placeholder="e.g. TaxEase, GrowFast, ZenCA">
+      </div>
+      <div class="field">
+        <label>Business Type / Niche</label>
+        <input type="text" id="niche" placeholder="e.g. GST Software, CA Firm, FinTech">
+      </div>
+      <div class="field" style="grid-column: span 2;">
+        <label>Brand Description (for AI)</label>
+        <textarea id="description" placeholder="Briefly describe your brand, target audience, and unique value..."></textarea>
+      </div>
+      <div class="premium-row" style="grid-column: span 2;">
+        <input type="checkbox" id="premiumMode">
+        <label for="premiumMode">🚀 <strong>Premium Processing:</strong> AI-powered creative suggestions + instant availability check (+₹400)</label>
+      </div>
+    </div>
+
+    <!-- EXTENSIONS -->
+    <div class="ext-title">Select Extensions</div>
+    <div class="ext-chips" id="extChips">
+      <button class="ext-chip active" data-ext=".com">.com</button>
+      <button class="ext-chip active" data-ext=".in">.in</button>
+      <button class="ext-chip" data-ext=".io">.io</button>
+      <button class="ext-chip" data-ext=".ai">.ai</button>
+      <button class="ext-chip" data-ext=".tech">.tech</button>
+      <button class="ext-chip" data-ext=".net">.net</button>
+      <button class="ext-chip" data-ext=".co">.co</button>
+      <button class="ext-chip" data-ext=".org">.org</button>
+    </div>
+
+    <button class="gen-btn" id="genBtn" onclick="generate()">🔍 Generate Domain Suggestions</button>
+
+    <!-- LOADING -->
+    <div class="loading" id="loading">
+      <div class="loading-icon">🌐</div>
+      <p id="loadingMsg">Generating domain suggestions...</p>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="results"></div>
+
+  </div>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <h3>🛒 Order Summary</h3>
+    <div id="orderDetails"></div>
+    <div class="order-total" id="orderTotal"></div>
+    <button class="pay-btn" onclick="completePayment()">💳 Proceed to Payment</button>
+    <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+  </div>
+</div>
+
+<script>
+  var BASE_PRICE_INR = 999;
+  var TAX_RATE = 0.18;
+  var selectedDomain = '';
+
+  // Extension toggle
+  document.getElementById('extChips').addEventListener('click', function(e) {
+    if (e.target.classList.contains('ext-chip')) {
+      e.target.classList.toggle('active');
+    }
+  });
+
+  function getSelectedExts() {
+    var active = document.querySelectorAll('.ext-chip.active');
+    return Array.from(active).map(function(c){ return c.dataset.ext; });
+  }
+
+  function generate() {
+    var keyword = document.getElementById('keyword').value.trim();
+    var niche   = document.getElementById('niche').value.trim();
+    var desc    = document.getElementById('description').value.trim();
+    var apiKey  = document.getElementById('apiKey').value.trim();
+    var isPrem  = document.getElementById('premiumMode').checked;
+    var exts    = getSelectedExts();
+
+    if (!keyword) { alert('Please enter a brand keyword!'); return; }
+    if (exts.length === 0) { alert('Please select at least one extension!'); return; }
+
+    var loading = document.getElementById('loading');
+    var results = document.getElementById('results');
+    var genBtn  = document.getElementById('genBtn');
+
+    results.innerHTML = '';
+    loading.style.display = 'block';
+    genBtn.disabled = true;
+    genBtn.innerHTML = '<span class="spin">⏳</span> Generating...';
+
+    document.getElementById('loadingMsg').innerText = isPrem
+      ? '🤖 AI is crafting creative domain names...'
+      : 'Generating domain suggestions...';
+
+    var delay = isPrem ? 600 : 1800;
+
+    if (apiKey && apiKey.startsWith('sk-ant-') && isPrem) {
+      // Real Claude AI suggestions
+      var prompt = 'Generate 8 creative, memorable, and professional domain name ideas for a brand with these details:\n\n'
+        + 'Keyword: ' + keyword + '\n'
+        + 'Business Type: ' + (niche || 'General') + '\n'
+        + 'Description: ' + (desc || 'Not provided') + '\n\n'
+        + 'Rules:\n'
+        + '- Names should be short (ideally under 12 characters), memorable, and brandable\n'
+        + '- Mix creative combinations: prefix, suffix, portmanteau, abbreviation\n'
+        + '- Return ONLY a JSON array like: ["taxflow", "growca", "zenledger", ...]\n'
+        + '- No extensions, no explanations, just the array';
+
+      fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 300,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(data) {
+        loading.style.display = 'none';
+        genBtn.disabled = false;
+        genBtn.innerHTML = '🔍 Generate Domain Suggestions';
+        if (data.content && data.content[0]) {
+          var text = data.content[0].text || '';
+          try {
+            var clean = text.replace(/```json|```/g,'').trim();
+            var names = JSON.parse(clean);
+            renderDomains(names, exts, true);
+            document.getElementById('apiStatus').className = 'api-status live';
+            document.getElementById('apiStatus').innerText = '✅ AI Active';
+          } catch(e) {
+            renderDomains(null, exts, false, keyword);
+          }
+        } else {
+          renderDomains(null, exts, false, keyword);
+        }
+      })
+      .catch(function() {
+        loading.style.display = 'none';
+        genBtn.disabled = false;
+        genBtn.innerHTML = '🔍 Generate Domain Suggestions';
+        renderDomains(null, exts, false, keyword);
+      });
+      return;
+    }
+
+    // Demo / non-AI mode
+    setTimeout(function() {
+      loading.style.display = 'none';
+      genBtn.disabled = false;
+      genBtn.innerHTML = '🔍 Generate Domain Suggestions';
+      renderDomains(null, exts, false, keyword);
+    }, delay);
+  }
+
+  function renderDomains(aiNames, exts, isAI, keyword) {
+    var results = document.getElementById('results');
+    results.innerHTML = '';
+    var kw = (keyword || document.getElementById('keyword').value).toLowerCase().replace(/\s+/g,'');
+    var niche = document.getElementById('niche').value.trim().toLowerCase().replace(/\s+/g,'');
+    var isPrem = document.getElementById('premiumMode').checked;
+
+    // Build name pool
+    var names;
+    if (aiNames && aiNames.length > 0) {
+      names = aiNames;
+    } else {
+      var suffixes = ['pro', 'hub', 'ai', 'flow', 'labs', 'hq', 'app', 'io'];
+      var prefixes = ['get', 'my', 'use', 'try', 'go'];
+      names = [kw];
+      suffixes.forEach(function(s){ names.push(kw + s); });
+      prefixes.forEach(function(p){ names.push(p + kw); });
+      if (niche) names.push(kw + niche.substring(0,4));
+    }
+
+    var grid = document.createElement('div');
+    grid.className = 'results-grid';
+    grid.style.marginTop = '20px';
+
+    var count = 0;
+    names.forEach(function(name) {
+      if (count >= 12) return;
+      exts.forEach(function(ext) {
+        if (count >= 12) return;
+        var domain = name.toLowerCase() + ext;
+        var price  = ext === '.com' ? 999 : ext === '.ai' ? 2499 : ext === '.io' ? 1999 : ext === '.in' ? 499 : 799;
+        var card   = document.createElement('div');
+        card.className = 'domain-card' + (isPrem && isAI ? ' premium-card' : '');
+        var badge = isAI
+          ? '<span class="domain-badge badge-ai">🤖 AI Pick</span>'
+          : (count < 3 ? '<span class="domain-badge badge-available">✅ Available</span>' : '');
+        card.innerHTML =
+          '<div>'
+          + '<div class="domain-name">' + escHtml(domain) + badge + '</div>'
+          + '<div class="domain-price">₹' + price + '/year + 18% GST</div>'
+          + '</div>'
+          + '<div>'
+          + '<button class="copy-btn" onclick="copyDomain(\'' + escHtml(domain) + '\')">📋</button>'
+          + '<button class="buy-btn" onclick="checkout(\'' + escHtml(domain) + '\',' + price + ')">Buy Now</button>'
+          + '</div>';
+        grid.appendChild(card);
+        count++;
+      });
+    });
+
+    results.appendChild(grid);
+
+    // AI suggestion text
+    if (isAI) {
+      var aiBox = document.createElement('div');
+      aiBox.className = 'ai-section';
+      aiBox.innerHTML = '<div class="ai-title">🤖 AI Analysis</div>'
+        + '<div class="ai-suggestion">These domain names were crafted by Claude AI based on your brand description. They are optimized for memorability, SEO potential, and brand identity. Consider pairing a short <strong>.com</strong> with a matching <strong>.in</strong> for the Indian market.</div>';
+      results.appendChild(aiBox);
+    }
+  }
+
+  function copyDomain(domain) {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(domain).then(function(){ alert('Copied: ' + domain + ' ✅'); });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = domain; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      alert('Copied: ' + domain + ' ✅');
+    }
+  }
+
+  function checkout(domain, price) {
+    selectedDomain = domain;
+    var isPrem = document.getElementById('premiumMode').checked;
+    var premFee = isPrem ? 400 : 0;
+    var subtotal = price + premFee;
+    var tax = subtotal * TAX_RATE;
+    var total = subtotal + tax;
+
+    document.getElementById('orderDetails').innerHTML =
+      '<div class="order-row"><span>Domain</span><span><strong>' + escHtml(domain) + '</strong></span></div>'
+      + '<div class="order-row"><span>Registration Fee</span><span>₹' + price + '</span></div>'
+      + (isPrem ? '<div class="order-row"><span>Premium AI Fee</span><span>₹400</span></div>' : '')
+      + '<div class="order-row"><span>GST (18% RCM)</span><span>₹' + tax.toFixed(0) + '</span></div>';
+    document.getElementById('orderTotal').innerHTML =
+      '<span>Total Payable</span><span style="color:#6366f1">₹' + total.toFixed(0) + '</span>';
+    document.getElementById('modal').style.display = 'flex';
+  }
+
+  function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+  function completePayment() {
+    closeModal();
+    alert('✅ Payment Successful!\n\nDomain ' + selectedDomain + ' has been registered.\nConfirmation sent to your email.');
+  }
+
+  // Close modal on overlay click
+  document.getElementById('modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  function escHtml(t) {
+    return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;');
+  }
+</script>
+</body>
+</html>
